@@ -1,29 +1,50 @@
-//Declaire Variables
-#include <millisDelay.h>
-millisDelay ledDel;
-bool state_brush_in;
+volatile byte state_brush_in;
 int swt;
+int led_red = 4 ;
+int led_green = 7;
+int buzz = 8;
+int ledState = LOW;
+unsigned long time;
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   //Set Pinout Mode
-  pinMode(2, OUTPUT);
-  pinMode(4, INPUT);
-  pinMode(7, OUTPUT);  
+  pinMode(2, INPUT_PULLUP);
+  pinMode(led_red, OUTPUT);
+  pinMode(led_green, OUTPUT);
+  pinMode(buzz, OUTPUT);
+  attachInterrupt(digitalPinToInterrupt(2), brush_in, CHANGE);
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-  swt = digitalRead(4);
+void brush_in() {
+  swt=digitalRead(2); 
   Serial.println(swt);
-  delay(500);
+}
 
-  if swt = 0 {
-      state_brush_in = true; 
-  } else {
-      state_brush_in = false;
-  }; 
+
+void loop() {
+  swt=digitalRead(2); 
+  // put your main code here, to run repeatedly:
+  //swt 0 = brush is in, swt 1 = brush is out
+
+  switch (swt) {
+   case 0:
+    digitalWrite(led_red, LOW);
+    digitalWrite(buzz, LOW);
+    digitalWrite(led_green, HIGH);
+    break;
+     
+   case 1:
+    digitalWrite(led_green, LOW);
+    digitalWrite(led_red, HIGH);
+    digitalWrite(buzz, HIGH);
+    delay(1000);
+    digitalWrite(led_green, LOW);
+    digitalWrite(buzz, LOW);
+    delay(1000);
+    break;
+  }
 
 
 
