@@ -11,6 +11,7 @@ int brushState = LOW;
 long time_in = 0;
 long time_out=0;
 long time_diff=0;
+int time;
 
 
 void setup() {
@@ -27,22 +28,29 @@ void setup() {
 void brush_in() {
   swt=digitalRead(2); 
   state_brush_in = !state_brush_in;
+  // if (CD.isRunning() == true) {
+   //  CD.stop();
+ //  }
   Serial.println(swt);
+  delay(1250);
 }
 
 void timer_1() {
 
-  CD.start(8);
-     while (CD.remaining() > 0) {
+ // CD.start(8);
+    time=0;
+     while (time < 8) {
       	digitalWrite(led_red, LOW);
       	digitalWrite(buzz, LOW);
       	digitalWrite(led_red, LOW);
       	digitalWrite(buzz, LOW);
       	digitalWrite(led_green, LOW);
       	Serial.println("brush is in");
-        Serial.println(CD.remaining());
+        Serial.println(time);
+        time += 1;
+        delay(1000);
      }
-    CD.stop();
+ //   CD.stop();
 }
 
 void timer_2() {
