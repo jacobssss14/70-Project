@@ -2,16 +2,16 @@
 
 CountDown CD(CountDown::SECONDS);
 
-volatile byte state_brush_in;
+bool state_brush_in = false;
 int swt;
 int led_red = 4 ;
-int led_green = 7;
-int buzz = 8;
-int ledState = LOW;
+int led_green = 12;
+int buzz = 13;
+int brushState = LOW;
 long time_in = 0;
 long time_out=0;
 long time_diff=0;
-bool brushState = false;
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -26,27 +26,49 @@ void setup() {
 
 void brush_in() {
   swt=digitalRead(2); 
+  state_brush_in = !state_brush_in;
   Serial.println(swt);
 }
 
+void timer_1() {
 
-void loop() {
-  swt=digitalRead(2); 
-  
-  //swt 0 = brush is in, swt 1 = brush is out
-switch (swt) {
-   case 0:
-      CD.start(3);
+  CD.start(8);
      while (CD.remaining() > 0) {
       	digitalWrite(led_red, LOW);
       	digitalWrite(buzz, LOW);
       	digitalWrite(led_red, LOW);
       	digitalWrite(buzz, LOW);
-      	digitalWrite(led_green, HIGH);
+      	digitalWrite(led_green, LOW);
       	Serial.println("brush is in");
-      	Serial.println(CD.remaining());
+        Serial.println(CD.remaining());
      }
     CD.stop();
+}
+
+void timer_2() {
+
+  CD.start(3);
+     while (CD.remaining() > 0) {
+      	digitalWrite(led_red, LOW);
+      	digitalWrite(buzz, LOW);
+      	digitalWrite(led_red, LOW);
+      	digitalWrite(buzz, LOW);
+      	digitalWrite(led_green, LOW);
+      	Serial.println("brush is out");
+        Serial.println(CD.remaining());
+     }
+    CD.stop();
+} 
+
+
+void loop() {
+  swt=digitalRead(2); 
+  switch (swt) {
+
+   case 0:
+    state_brush_in = true;
+    timer_1();
+    while (state_brush_in == true) {
     Serial.println("brush is in for too long");
     digitalWrite(led_green, LOW);
     digitalWrite(led_red, HIGH);
@@ -55,33 +77,34 @@ switch (swt) {
     digitalWrite(led_green, LOW);
     digitalWrite(buzz, LOW);
     delay(1000);
+    }
     break;
      
    case 1:
-   CD.start(3);
-     while (CD.remaining() > 0) {
-      	digitalWrite(led_red, LOW);
-      	digitalWrite(buzz, LOW);
-      	digitalWrite(led_red, LOW);
-      	digitalWrite(buzz, LOW);
-      	digitalWrite(led_green, HIGH);
-        delay(1000);
-        digitalWrite(led_green, LOW);
-      	Serial.println("brushing teeth");
-      	Serial.println(CD.remaining());
-     }
-    CD.stop();
-   	Serial.println("brush is out for too long");
+    state_brush_in = false;
+    timer_2();
+    digitalWrite(led_green, HIGH);
+    while (state_brush_in == false) {
+    delay(3000);
     digitalWrite(led_green, LOW);
+    Serial.println("brush is out for too long");
+    //digitalWrite(led_green, HIGH);
     digitalWrite(led_red, HIGH);
     digitalWrite(buzz, HIGH);
     delay(1000);
+    digitalWrite(led_red, LOW);
     digitalWrite(led_green, LOW);
     digitalWrite(buzz, LOW);
     delay(1000);
+    }
     break;
 }
 
 
-
 }
+
+
+  //swt 0 = brush is in, swt 1 = brush is out
+
+
+
